@@ -28,6 +28,22 @@ function SongsPage() {
             <h2 className="text-xl font-black mb-1">3. A Thousand Years - Christina Perri</h2>
             <p className="text-black/80 font-bold">I have loved you for a thousand years.</p>
           </div>
+          <div className="bg-[#ff9933] p-4 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform rotate-2 hover:-rotate-2 transition-transform">
+            <h2 className="text-xl font-black mb-1">4. 17 - Pink Sweat$</h2>
+            <p className="text-black/80 font-bold">Such a sweet and lovely vibe.</p>
+          </div>
+          <div className="bg-[#33ccff] p-4 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform -rotate-1 hover:rotate-1 transition-transform">
+            <h2 className="text-xl font-black mb-1">5. PILLOWTALK - ZAYN</h2>
+            <p className="text-black/80 font-bold">A classic vibe just for us.</p>
+          </div>
+          <div className="bg-[#ffed4a] p-4 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform rotate-1 hover:-rotate-1 transition-transform">
+            <h2 className="text-xl font-black mb-1">6. love - Burna Boy</h2>
+            <p className="text-black/80 font-bold">Nothing but pure love.</p>
+          </div>
+          <div className="bg-[#ff3366] p-4 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform -rotate-2 hover:rotate-2 transition-transform text-white">
+            <h2 className="text-xl font-black mb-1">7. dopamine - Fireboy DML</h2>
+            <p className="text-white/90 font-bold">You're my dopamine hit! 😍</p>
+          </div>
         </div>
       </div>
     </div>
