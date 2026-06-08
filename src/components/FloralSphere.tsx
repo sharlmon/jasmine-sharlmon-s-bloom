@@ -107,25 +107,17 @@ function Bouquet({ bloom }: { bloom: boolean }) {
   const data = useMemo<Datum[]>(() => {
     const N = 90;
     const pts = clusterPoints(N, 1.6);
-    const palette = [
-      new THREE.Color("#ff5577"), // deep rose
-      new THREE.Color("#ff85a2"), // pink
-      new THREE.Color("#ffffff"), // white
-      new THREE.Color("#ffd1dc"), // blush
-      new THREE.Color("#c9223a"), // crimson
-    ];
     return pts.map((p, i) => {
       const isLeaf = i % 7 === 0;
       return {
         pos: p,
         dir: p.clone().normalize(),
-        scale: (isLeaf ? 0.55 : 0.7) + Math.random() * 0.45,
+        scale: (isLeaf ? 0.6 : 0.8) + Math.random() * 0.4,
         rot: Math.random() * Math.PI * 2,
         tex: isLeaf ? 4 : i % 3 === 0 ? 2 : (i % 2) as number,
         phase: Math.random() * Math.PI * 2,
-        tint: isLeaf
-          ? new THREE.Color("#7fb088")
-          : palette[Math.floor(Math.random() * palette.length)],
+        // Using pure white to preserve the photorealistic colors of the new assets
+        tint: new THREE.Color("#ffffff"),
       };
     });
   }, []);
@@ -166,7 +158,25 @@ function Bouquet({ bloom }: { bloom: boolean }) {
   );
 }
 
-export default function FloralScene({ exploded }: { exploded: boolean }) {
+function SpringUpGroup({ children, popped }: { children: React.ReactNode, popped: boolean }) {
+  const group = useRef<THREE.Group>(null!);
+  useFrame((_, dt) => {
+    const targetY = popped ? 0 : -15; // start way below screen
+    if (group.current) {
+      // Bouncy spring effect
+      const currentY = group.current.position.y;
+      const diff = targetY - currentY;
+      group.current.position.y += diff * Math.min(1, dt * 5);
+      
+      // Slight squash/stretch for cartoon feel
+      const scale = 1 + (diff * 0.02);
+      group.current.scale.set(1/scale, scale, 1/scale);
+    }
+  });
+  return <group ref={group} position={[0, -15, 0]}>{children}</group>;
+}
+
+export default function FloralScene({ popped = false }: { popped?: boolean }) {
   return (
     <Canvas
       dpr={[1, 2]}
@@ -174,18 +184,22 @@ export default function FloralScene({ exploded }: { exploded: boolean }) {
       gl={{ antialias: true, alpha: true }}
       className="!absolute inset-0"
     >
-      <ambientLight intensity={0.6} />
-      <directionalLight position={[4, 5, 6]} intensity={1.1} color="#ffd0e0" />
-      <pointLight position={[-5, -2, 4]} intensity={1.3} color="#c9a0ff" />
-      <pointLight position={[0, 0, 3]} intensity={0.7} color="#ffb87a" />
+      <ambientLight intensity={1.8} />
+      <directionalLight position={[4, 5, 6]} intensity={2.2} color="#ffffff" />
+      <pointLight position={[-5, -2, 4]} intensity={1.5} color="#ffd1e3" />
+      <pointLight position={[0, 0, 3]} intensity={1.2} color="#fffaf0" />
 
-      <Float speed={1.4} rotationIntensity={0.2} floatIntensity={0.7}>
-        <Bouquet bloom={exploded} />
-      </Float>
+      <SpringUpGroup popped={popped}>
+        <Float speed={1.4} rotationIntensity={0.2} floatIntensity={0.7}>
+          {/* the bloom prop was mapped to exploded, now it's always exploded since we open with tricky button */}
+          <Bouquet bloom={true} />
+        </Float>
+      </SpringUpGroup>
 
-      <Sparkles count={140} scale={[12, 9, 6]} size={2.4} speed={0.35} color="#ffd6e8" opacity={0.7} />
-      <Sparkles count={70} scale={[14, 10, 6]} size={4} speed={0.15} color="#f9c46b" opacity={0.55} />
-      <Sparkles count={90} scale={[16, 11, 8]} size={1.6} speed={0.5} color="#e8d5ff" opacity={0.5} />
+      {/* Sparkles tweaked for light background: using rose gold and soft pinks with higher opacity so they show up */}
+      <Sparkles count={140} scale={[12, 9, 6]} size={2.4} speed={0.35} color="#e8aebf" opacity={0.8} />
+      <Sparkles count={70} scale={[14, 10, 6]} size={4} speed={0.15} color="#d4af37" opacity={0.6} />
+      <Sparkles count={90} scale={[16, 11, 8]} size={1.6} speed={0.5} color="#ffffff" opacity={0.9} />
     </Canvas>
   );
 }

@@ -6,6 +6,7 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
+import { Link } from "@tanstack/react-router";
 import FloralScene from "./FloralSphere";
 
 const START_DATE = new Date("2025-06-22T00:00:00");
@@ -22,6 +23,10 @@ type Parts = {
 };
 
 function diffParts(from: Date, to: Date): Parts {
+  if (to.getTime() < from.getTime()) {
+    return { years: 0, months: 0, days: 0, hours: 0, minutes: 0, seconds: 0 };
+  }
+
   let years = to.getFullYear() - from.getFullYear();
   let months = to.getMonth() - from.getMonth();
   let days = to.getDate() - from.getDate();
@@ -54,12 +59,17 @@ function diffParts(from: Date, to: Date): Parts {
 }
 
 function useLiveTimer() {
-  const [p, setP] = useState<Parts>(() => diffParts(START_DATE, new Date()));
+  const [p, setP] = useState<Parts>({ years: 0, months: 0, days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
+    setP(diffParts(START_DATE, new Date()));
+    setMounted(true);
     const id = setInterval(() => setP(diffParts(START_DATE, new Date())), 1000);
     return () => clearInterval(id);
   }, []);
-  return p;
+  
+  return { timer: p, mounted };
 }
 
 function RollingNumber({ value }: { value: number }) {
@@ -71,7 +81,7 @@ function RollingNumber({ value }: { value: number }) {
           initial={{ y: "100%", opacity: 0 }}
           animate={{ y: "0%", opacity: 1 }}
           exit={{ y: "-100%", opacity: 0 }}
-          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.3, type: "spring", stiffness: 200, damping: 15 }}
           className="inline-block"
         >
           {String(value).padStart(2, "0")}
@@ -81,33 +91,22 @@ function RollingNumber({ value }: { value: number }) {
   );
 }
 
-function TimerCell({ label, value }: { label: string; value: number }) {
+function TimerCell({ label, value, color, rotate }: { label: string; value: number, color: string, rotate: string }) {
   return (
-    <div className="flex flex-col items-center">
+    <div className={`flex flex-col items-center transform ${rotate} transition-transform hover:scale-110 hover:rotate-0`}>
       <div
-        className="relative px-3 sm:px-5 py-3 sm:py-4 rounded-2xl min-w-[64px] sm:min-w-[88px]"
+        className="relative flex items-center justify-center w-16 h-16 sm:w-24 sm:h-24 rounded-2xl"
         style={{
-          background:
-            "linear-gradient(160deg, rgba(255,255,255,0.18), rgba(255,200,225,0.06))",
-          backdropFilter: "blur(18px)",
-          border: "1px solid rgba(255,255,255,0.28)",
-          boxShadow:
-            "0 18px 60px -20px rgba(255,120,180,0.35), inset 0 1px 0 rgba(255,255,255,0.4)",
+          backgroundColor: color,
+          border: "4px solid black",
+          boxShadow: "6px 6px 0px 0px rgba(0,0,0,1)",
         }}
       >
-        <div
-          className="font-serif text-3xl sm:text-5xl text-center leading-none"
-          style={{
-            background: "linear-gradient(180deg,#fff 0%,#ffd6e8 55%,#e8b96b 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            filter: "drop-shadow(0 4px 18px rgba(255,180,210,0.35))",
-          }}
-        >
+        <div className="font-black text-3xl sm:text-5xl text-center leading-none text-white" style={{ textShadow: "2px 2px 0px #000, -2px -2px 0px #000, 2px -2px 0px #000, -2px 2px 0px #000" }}>
           <RollingNumber value={value} />
         </div>
       </div>
-      <div className="mt-2 text-[0.55rem] sm:text-[0.65rem] uppercase tracking-[0.35em] text-white/55">
+      <div className="mt-3 text-[0.7rem] sm:text-[0.8rem] font-black uppercase tracking-[0.2em] text-black bg-white px-2 py-1 border-2 border-black rounded-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
         {label}
       </div>
     </div>
@@ -117,41 +116,43 @@ function TimerCell({ label, value }: { label: string; value: number }) {
 /* ───────────────────────────── Floating petals ───────────────────────────── */
 
 const NOTES = [
-  "You make ordinary days beautiful ❤️",
-  "My favorite place is next to you",
-  "You are my peace",
-  "Every day with you feels special",
-  "You make life brighter",
-  "I still smile when I think of you",
-  "Forever feels too short",
-  "Thank you for being you",
-  "You are my home",
-  "Loving you is my favorite thing",
+  "You're the coolest! 😎",
+  "My favorite weirdo 🤪",
+  "We go together like PB&J 🥪",
+  "You make me smile so big! 😁",
+  "Best adventure buddy! 🗺️",
+  "You're my sunshine! ☀️",
+  "Love you more than pizza! 🍕",
+  "You're a star! ⭐",
+  "My favorite person! 💖",
+  "We are totally awesome! 🚀",
 ];
 
 type Petal = {
   id: number;
   note: string;
-  x: number; // 0..100 vw
-  y: number; // 0..100 vh
+  x: number;
+  y: number;
   size: number;
   duration: number;
   delay: number;
-  hue: number;
   drift: number;
+  color: string;
 };
+
+const CARTOON_COLORS = ["#ff3366", "#33ccff", "#ffed4a", "#99ff99", "#cc99ff", "#ff9933"];
 
 function makePetals(n: number): Petal[] {
   return Array.from({ length: n }, (_, i) => ({
     id: i,
     note: NOTES[i % NOTES.length],
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    size: 130 + Math.random() * 70,
-    duration: 18 + Math.random() * 18,
-    delay: Math.random() * 10,
-    hue: 340 + Math.random() * 30,
-    drift: (Math.random() - 0.5) * 40,
+    x: Math.random() * 80 + 10,
+    y: Math.random() * 80 + 10,
+    size: 160 + Math.random() * 60,
+    duration: 8 + Math.random() * 10,
+    delay: Math.random() * 5,
+    drift: (Math.random() - 0.5) * 60,
+    color: CARTOON_COLORS[i % CARTOON_COLORS.length]
   }));
 }
 
@@ -164,43 +165,49 @@ function PetalNote({
   mx: ReturnType<typeof useMotionValue<number>>;
   my: ReturnType<typeof useMotionValue<number>>;
 }) {
-  // cursor reaction — tiny offset based on distance from petal anchor
-  const ox = useTransform(mx, (v) => (v - petal.x) * -0.25);
-  const oy = useTransform(my, (v) => (v - petal.y) * -0.25);
-  const sox = useSpring(ox, { stiffness: 50, damping: 18 });
-  const soy = useSpring(oy, { stiffness: 50, damping: 18 });
+  const ox = useTransform(mx, (v) => (v - petal.x) * -0.2);
+  const oy = useTransform(my, (v) => (v - petal.y) * -0.2);
+  const sox = useSpring(ox, { stiffness: 40, damping: 20 });
+  const soy = useSpring(oy, { stiffness: 40, damping: 20 });
+
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <motion.div
-      className="absolute pointer-events-none select-none"
+      className="absolute select-none"
       style={{
         left: `${petal.x}%`,
-        top: `${petal.y}%`,
+        bottom: `-${petal.size}px`,
         x: sox,
         y: soy,
         width: petal.size,
+        zIndex: isHovered ? 100 : 18,
       }}
-      initial={{ opacity: 0 }}
+      initial={{ y: 1000, opacity: 0 }}
       animate={{
-        opacity: [0, 0.95, 0.95, 0],
-        y: [0, -40 - petal.drift, -10, 20],
-        rotate: [-8, 8, -4, 6],
+        y: isHovered ? 0 : [-800, -800 - petal.size],
+        opacity: [0, 1, 1, 0],
+        rotate: isHovered ? 0 : [-10, 10, -5, 8],
+        scale: isHovered ? 1.2 : 1,
       }}
       transition={{
-        duration: petal.duration,
-        delay: petal.delay,
-        repeat: Infinity,
-        ease: "easeInOut",
+        y: { duration: petal.duration, delay: petal.delay, repeat: Infinity, ease: "linear" },
+        opacity: { duration: petal.duration, delay: petal.delay, repeat: Infinity, ease: "linear" },
+        rotate: { duration: petal.duration/2, repeat: Infinity, ease: "easeInOut", repeatType: "mirror" },
+        scale: { duration: 0.2 }
       }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <div
-        className="relative px-4 py-3 rounded-[40%_60%_50%_50%/60%_40%_60%_40%] text-center font-serif italic text-[0.8rem] sm:text-sm leading-snug"
+        className="relative px-4 py-3 cursor-pointer rounded-2xl text-center font-bold text-sm leading-snug transition-transform"
         style={{
-          background: `radial-gradient(ellipse at 30% 30%, hsla(${petal.hue},80%,88%,0.95), hsla(${petal.hue},70%,70%,0.85) 60%, hsla(${petal.hue},65%,55%,0.75))`,
-          color: "#3a0a1e",
-          boxShadow: `0 10px 30px -8px hsla(${petal.hue},70%,40%,0.45), inset 0 1px 0 rgba(255,255,255,0.6)`,
-          border: "1px solid rgba(255,255,255,0.4)",
-          textShadow: "0 1px 0 rgba(255,255,255,0.4)",
+          backgroundColor: petal.color,
+          border: "4px solid black",
+          boxShadow: isHovered
+            ? "10px 10px 0px 0px rgba(0,0,0,1)"
+            : "6px 6px 0px 0px rgba(0,0,0,1)",
+          color: "black",
         }}
       >
         {petal.note}
@@ -209,32 +216,35 @@ function PetalNote({
   );
 }
 
-/* ─────────────────────────── Falling rose petals ─────────────────────────── */
+/* ─────────────────────────── Falling confetti ─────────────────────────── */
 
-function FallingPetal({ i }: { i: number }) {
+function Confetti({ i }: { i: number }) {
   const left = useMemo(() => Math.random() * 100, []);
-  const duration = useMemo(() => 8 + Math.random() * 10, []);
-  const delay = useMemo(() => Math.random() * 8, []);
-  const size = useMemo(() => 14 + Math.random() * 20, []);
-  const hue = useMemo(() => 340 + Math.random() * 30, []);
+  const duration = useMemo(() => 5 + Math.random() * 8, []);
+  const delay = useMemo(() => Math.random() * 10, []);
+  const size = useMemo(() => 10 + Math.random() * 15, []);
+  const color = useMemo(() => CARTOON_COLORS[Math.floor(Math.random() * CARTOON_COLORS.length)], []);
+  const type = useMemo(() => Math.random() > 0.5 ? 'circle' : 'rect', []);
+  
   return (
     <motion.div
       key={i}
-      className="absolute top-[-10%] pointer-events-none"
-      style={{ left: `${left}%`, width: size, height: size }}
-      animate={{ y: ["0vh", "120vh"], x: [0, 30, -20, 0], rotate: [0, 360] }}
+      className="absolute bottom-[-10%] pointer-events-none"
+      style={{ 
+        left: `${left}%`, 
+        width: size, 
+        height: type === 'circle' ? size : size * 1.5, 
+        backgroundColor: color, 
+        border: "2px solid black",
+        borderRadius: type === 'circle' ? '50%' : '2px'
+      }}
+      animate={{ 
+        y: ["0vh", "-120vh"], 
+        x: [0, 60, -40, 0], 
+        rotate: [0, 720]
+      }}
       transition={{ duration, delay, repeat: Infinity, ease: "linear" }}
-    >
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          background: `radial-gradient(ellipse at 30% 30%, hsla(${hue},85%,80%,0.95), hsla(${hue},70%,55%,0.85))`,
-          borderRadius: "60% 40% 60% 40% / 70% 50% 50% 30%",
-          boxShadow: `0 4px 16px hsla(${hue},70%,50%,0.4)`,
-        }}
-      />
-    </motion.div>
+    />
   );
 }
 
@@ -244,7 +254,6 @@ function MusicButton() {
   const ref = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState(false);
   const [volume, setVolume] = useState(0.35);
-  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (!ref.current) {
@@ -273,51 +282,66 @@ function MusicButton() {
   };
 
   return (
-    <div
-      className="fixed top-5 right-5 z-50 flex items-center gap-2 rounded-full p-1.5 pl-2"
-      style={{
-        background: "linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,200,220,0.08))",
-        backdropFilter: "blur(20px)",
-        border: "1px solid rgba(255,255,255,0.3)",
-        boxShadow: "0 12px 40px -10px rgba(255,120,180,0.35)",
-      }}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-    >
+    <div className="fixed top-6 right-6 z-50 flex items-center gap-4">
       <button
         onClick={toggle}
-        className="grid place-items-center h-9 w-9 rounded-full text-white/90 hover:text-white transition"
-        style={{ background: "rgba(255,255,255,0.12)" }}
+        className="w-14 h-14 rounded-full bg-[#ffed4a] border-4 border-black flex items-center justify-center text-black text-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all active:scale-90"
         aria-label={playing ? "Pause music" : "Play music"}
       >
-        {playing ? (
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-            <rect x="6" y="5" width="4" height="14" rx="1" />
-            <rect x="14" y="5" width="4" height="14" rx="1" />
-          </svg>
-        ) : (
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M7 5v14l12-7z" />
-          </svg>
-        )}
+        {playing ? "⏸" : "🎵"}
       </button>
-      <AnimatePresence>
-        {open && (
-          <motion.input
-            type="range"
-            min={0}
-            max={1}
-            step={0.01}
-            value={volume}
-            onChange={(e) => setVolume(parseFloat(e.target.value))}
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ width: 88, opacity: 1 }}
-            exit={{ width: 0, opacity: 0 }}
-            className="accent-rose mr-2 h-1"
-            aria-label="Volume"
-          />
-        )}
-      </AnimatePresence>
+    </div>
+  );
+}
+
+/* ─────────────────────────────── Tricky Question ───────────────────────────────── */
+function TrickyQuestion({ onYes }: { onYes: () => void }) {
+  const [noPosition, setNoPosition] = useState({ x: 0, y: 0 });
+  const noBtnRef = useRef<HTMLButtonElement>(null);
+
+  const moveNoButton = () => {
+    const maxX = window.innerWidth * 0.4;
+    const maxY = window.innerHeight * 0.4;
+    const rx = (Math.random() - 0.5) * maxX;
+    const ry = (Math.random() - 0.5) * maxY;
+    setNoPosition({ x: rx, y: ry });
+  };
+
+  return (
+    <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#ffed4a] bg-[radial-gradient(#ff3366_3px,transparent_3px)] [background-size:32px_32px]">
+      <motion.div 
+        initial={{ scale: 0, rotate: -10 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{ type: "spring", bounce: 0.6 }}
+        className="bg-white p-8 sm:p-12 border-8 border-black rounded-3xl shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] text-center max-w-xl mx-4"
+      >
+        <h1 className="text-4xl sm:text-6xl font-black mb-8 text-[#ff3366] uppercase" style={{ textShadow: "3px 3px 0px #000, -1px -1px 0px #000, 1px -1px 0px #000, -1px 1px 0px #000" }}>
+          Wait a minute! 🛑
+        </h1>
+        <p className="text-2xl sm:text-4xl font-bold mb-12 text-black">
+          Are we the cutest couple ever?
+        </p>
+        
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-8 min-h-[100px]">
+          <button 
+            onClick={onYes}
+            className="px-10 py-4 bg-[#99ff99] border-4 border-black rounded-2xl text-3xl font-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-[#7ceb7c] transition-all transform hover:scale-110"
+          >
+            YES! 😍
+          </button>
+          
+          <motion.button
+            ref={noBtnRef}
+            animate={{ x: noPosition.x, y: noPosition.y }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            onMouseEnter={moveNoButton}
+            onClick={moveNoButton}
+            className="absolute sm:relative px-10 py-4 bg-[#ff3366] border-4 border-black rounded-2xl text-3xl font-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] text-white"
+          >
+            NO 🤢
+          </motion.button>
+        </div>
+      </motion.div>
     </div>
   );
 }
@@ -326,15 +350,12 @@ function MusicButton() {
 
 export default function AnniversaryPage() {
   const [opened, setOpened] = useState(false);
-  const timer = useLiveTimer();
+  const { timer, mounted } = useLiveTimer();
   const petals = useMemo(() => makePetals(NOTES.length), []);
-  const falling = useMemo(() => Array.from({ length: 22 }, (_, i) => i), []);
+  const confetti = useMemo(() => Array.from({ length: 40 }, (_, i) => i), []);
 
-  // cursor — percentages of viewport
   const mx = useMotionValue(50);
   const my = useMotionValue(50);
-  const gx = useSpring(useTransform(mx, (v) => `${v}%`), { stiffness: 60, damping: 20 });
-  const gy = useSpring(useTransform(my, (v) => `${v}%`), { stiffness: 60, damping: 20 });
 
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
@@ -345,182 +366,103 @@ export default function AnniversaryPage() {
     return () => window.removeEventListener("mousemove", onMove);
   }, [mx, my]);
 
+  if (!opened) {
+    return <TrickyQuestion onYes={() => setOpened(true)} />;
+  }
+
   return (
     <main
-      className="relative min-h-dvh w-full overflow-hidden text-white"
-      style={{
-        background:
-          "radial-gradient(ellipse at 50% 40%, #3a1024 0%, #1f0814 55%, #0d0410 100%)",
-      }}
+      className="relative min-h-dvh w-full overflow-hidden bg-[#33ccff] font-sans"
+      style={{ fontFamily: '"Comic Sans MS", "Chalkboard SE", sans-serif' }}
     >
-      {/* soft cursor glow */}
-      <motion.div
-        aria-hidden
-        className="pointer-events-none fixed -translate-x-1/2 -translate-y-1/2 z-[5] h-[520px] w-[520px] rounded-full blur-3xl opacity-60"
-        style={{
-          left: gx,
-          top: gy,
-          background:
-            "radial-gradient(circle, rgba(255,150,190,0.35), rgba(200,140,255,0.18) 45%, transparent 70%)",
-        }}
-      />
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000), linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000)", backgroundSize: "40px 40px", backgroundPosition: "0 0, 20px 20px" }}></div>
 
-      {/* light rays */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-[4] opacity-50 mix-blend-screen"
-        style={{
-          background:
-            "conic-gradient(from 220deg at 50% 30%, transparent 0deg, rgba(255,200,220,0.12) 30deg, transparent 60deg, rgba(255,220,180,0.1) 120deg, transparent 160deg, rgba(220,180,255,0.1) 220deg, transparent 260deg)",
-        }}
-      />
-
-      {/* falling petals (ambient) */}
+      {/* falling confetti */}
       <div className="absolute inset-0 z-[6] pointer-events-none">
-        {falling.map((i) => (
-          <FallingPetal key={i} i={i} />
+        {confetti.map((i) => (
+          <Confetti key={i} i={i} />
         ))}
       </div>
 
       {/* 3D bouquet scene */}
       <div className="absolute inset-0 z-[7]">
         <Suspense fallback={null}>
-          <FloralScene exploded={opened} />
+          {/* We pass a prop to trigger the spring up animation from bottom */}
+          <FloralScene popped={true} />
         </Suspense>
       </div>
 
-      {/* invisible click target over the bouquet (only before opening) */}
-      {!opened && (
-        <button
-          onClick={() => setOpened(true)}
-          aria-label="Open our story"
-          className="absolute z-[15] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[60vmin] w-[60vmin] rounded-full focus:outline-none"
-        />
-      )}
-
-      {/* vignette */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-[8]"
-        style={{
-          background:
-            "radial-gradient(ellipse at center, transparent 40%, rgba(13,4,16,0.7) 85%, rgba(13,4,16,0.95) 100%)",
-        }}
-      />
-
       <MusicButton />
 
-      {/* Title — always visible, soft glow */}
-      <motion.h1
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1.6, delay: 0.4 }}
-        className="absolute z-[20] left-1/2 -translate-x-1/2 top-8 sm:top-12 font-serif text-3xl sm:text-5xl text-center tracking-wide"
-        style={{
-          textShadow:
-            "0 0 24px rgba(255,180,210,0.55), 0 0 60px rgba(255,150,200,0.35)",
-        }}
+      {/* Navigation Links at Top */}
+      <motion.div 
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ type: "spring", bounce: 0.5, delay: 0.5 }}
+        className="absolute top-6 left-0 right-0 z-40 flex justify-center gap-4 px-4 flex-wrap"
       >
-        Jasmine <span className="font-script italic text-rose">&amp;</span> Sharlmon
+        <Link to="/songs" className="px-4 py-2 bg-[#ff99cc] border-4 border-black rounded-full font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">🎵 Songs</Link>
+        <Link to="/letter" className="px-4 py-2 bg-[#ffed4a] border-4 border-black rounded-full font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">💌 Letter</Link>
+      </motion.div>
+
+      {/* Title */}
+      <motion.h1
+        initial={{ scale: 0, rotate: -10 }}
+        animate={{ scale: 1, rotate: -2 }}
+        transition={{ type: "spring", bounce: 0.6, delay: 1 }}
+        className="absolute z-[20] w-full top-24 font-black text-5xl sm:text-7xl text-center tracking-tight text-white uppercase"
+        style={{ textShadow: "4px 4px 0px #000, -2px -2px 0px #000, 2px -2px 0px #000, -2px 2px 0px #000" }}
+      >
+        Jasmine <span className="text-[#ffed4a] mx-2 text-6xl">❤</span> Sharlmon
       </motion.h1>
 
-      {/* CTA before open */}
+      {/* Floating petal notes — pop up from bottom */}
       <AnimatePresence>
-        {!opened && (
-          <motion.div
-            key="cta"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 1.15, transition: { duration: 0.9 } }}
-            transition={{ duration: 1.4, delay: 1 }}
-            className="absolute z-[16] left-1/2 -translate-x-1/2 bottom-[14vh] flex flex-col items-center pointer-events-none"
-          >
-            <motion.div
-              animate={{
-                textShadow: [
-                  "0 0 18px rgba(255,180,210,0.5)",
-                  "0 0 40px rgba(255,180,210,0.85)",
-                  "0 0 18px rgba(255,180,210,0.5)",
-                ],
-              }}
-              transition={{ duration: 2.6, repeat: Infinity }}
-              onClick={() => setOpened(true)}
-              className="pointer-events-auto cursor-pointer font-serif italic text-xl sm:text-2xl text-white/95 tracking-wide select-none"
-            >
-              Open Our Story <span className="text-rose">❤</span>
-            </motion.div>
-            <p className="mt-3 text-[0.6rem] uppercase tracking-[0.4em] text-white/45">
-              tap the bouquet
-            </p>
-          </motion.div>
-        )}
+        <motion.div
+          key="notes"
+          className="absolute inset-0 z-[18]"
+        >
+          {petals.map((p) => (
+            <PetalNote key={p.id} petal={p} mx={mx} my={my} />
+          ))}
+        </motion.div>
       </AnimatePresence>
 
-      {/* Bloom flash on open */}
-      <AnimatePresence>
-        {opened && (
-          <motion.div
-            key="flash"
-            initial={{ opacity: 0, scale: 0.4 }}
-            animate={{ opacity: [0, 0.9, 0], scale: [0.4, 2.6, 3.4] }}
-            transition={{ duration: 1.6, ease: "easeOut" }}
-            className="absolute z-[9] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[60vmin] w-[60vmin] rounded-full pointer-events-none"
-            style={{
-              background:
-                "radial-gradient(circle, rgba(255,220,235,0.9), rgba(255,160,200,0.4) 40%, transparent 70%)",
-              filter: "blur(20px)",
-            }}
-          />
+      {/* Live timer */}
+      <motion.div
+        initial={{ scale: 0, y: 100 }}
+        animate={{ scale: 1, y: 0 }}
+        transition={{ type: "spring", bounce: 0.5, delay: 1.5 }}
+        className="absolute z-[22] left-1/2 w-full -translate-x-1/2 bottom-12 sm:bottom-24 px-4"
+      >
+        {mounted ? (
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 max-w-5xl mx-auto">
+            <TimerCell label="Years" value={timer.years} color="#ff3366" rotate="-rotate-3" />
+            <TimerCell label="Months" value={timer.months} color="#33ccff" rotate="rotate-2" />
+            <TimerCell label="Days" value={timer.days} color="#ffed4a" rotate="-rotate-1" />
+            <TimerCell label="Hours" value={timer.hours} color="#99ff99" rotate="rotate-3" />
+            <TimerCell label="Minutes" value={timer.minutes} color="#cc99ff" rotate="-rotate-2" />
+            <TimerCell label="Seconds" value={timer.seconds} color="#ff9933" rotate="rotate-1" />
+          </div>
+        ) : (
+          <div className="flex justify-center items-center h-24">
+            <div className="w-12 h-12 border-8 border-black border-t-white rounded-full animate-spin" />
+          </div>
         )}
-      </AnimatePresence>
-
-      {/* Floating petal notes — revealed after open */}
-      <AnimatePresence>
-        {opened && (
-          <motion.div
-            key="notes"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 2, delay: 1.4 }}
-            className="absolute inset-0 z-[18]"
+        
+        <motion.div
+          animate={{ scale: [1, 1.1, 1], rotate: [-2, 2, -2] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="mt-8 text-center"
+        >
+          <span 
+            className="inline-block bg-white border-4 border-black px-6 py-2 rounded-full font-black text-2xl uppercase text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform rotate-2"
           >
-            {petals.map((p) => (
-              <PetalNote key={p.id} petal={p} mx={mx} my={my} />
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Live timer — center, revealed after open */}
-      <AnimatePresence>
-        {opened && (
-          <motion.div
-            key="timer"
-            initial={{ opacity: 0, scale: 0.85, y: 30 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 1.4, delay: 1.8, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute z-[22] left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 px-4"
-          >
-            <div className="flex flex-wrap items-end justify-center gap-2 sm:gap-3">
-              <TimerCell label="Years" value={timer.years} />
-              <TimerCell label="Months" value={timer.months} />
-              <TimerCell label="Days" value={timer.days} />
-              <TimerCell label="Hours" value={timer.hours} />
-              <TimerCell label="Minutes" value={timer.minutes} />
-              <TimerCell label="Seconds" value={timer.seconds} />
-            </div>
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 3, duration: 1 }}
-              className="mt-6 text-center font-script text-2xl sm:text-3xl text-rose"
-              style={{ textShadow: "0 0 20px rgba(255,150,190,0.5)" }}
-            >
-              forever in bloom
-            </motion.p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            Since June 22, 2025! 💥
+          </span>
+        </motion.div>
+      </motion.div>
     </main>
   );
 }
