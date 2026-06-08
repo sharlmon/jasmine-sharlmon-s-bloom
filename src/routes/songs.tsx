@@ -16,60 +16,56 @@ function SongsPage() {
         </div>
         
         <div className="space-y-6">
-          <div className="bg-[#ff99cc] p-4 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform -rotate-1 hover:rotate-1 transition-transform">
-            <h2 className="text-xl font-black mb-1">1. Perfect - Ed Sheeran</h2>
-            <p className="text-black/80 font-bold">Always reminds me of our first dance!</p>
-          </div>
           <div className="bg-[#99ff99] p-4 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform rotate-1 hover:-rotate-1 transition-transform">
-            <h2 className="text-xl font-black mb-1">2. Just The Way You Are - Bruno Mars</h2>
+            <h2 className="text-xl font-black mb-1">1. Just The Way You Are - Bruno Mars</h2>
             <p className="text-black/80 font-bold">Because you're amazing, just the way you are.</p>
           </div>
           <div className="bg-[#cc99ff] p-4 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform -rotate-2 hover:rotate-2 transition-transform">
-            <h2 className="text-xl font-black mb-1">3. A Thousand Years - Christina Perri</h2>
+            <h2 className="text-xl font-black mb-1">2. A Thousand Years - Christina Perri</h2>
             <p className="text-black/80 font-bold">I have loved you for a thousand years.</p>
           </div>
           <div className="bg-[#ff9933] p-4 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform rotate-2 hover:-rotate-2 transition-transform">
-            <h2 className="text-xl font-black mb-1">4. 17 - Pink Sweat$</h2>
+            <h2 className="text-xl font-black mb-1">3. 17 - Pink Sweat$</h2>
             <p className="text-black/80 font-bold">Such a sweet and lovely vibe.</p>
           </div>
           <div className="bg-[#33ccff] p-4 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform -rotate-1 hover:rotate-1 transition-transform">
-            <h2 className="text-xl font-black mb-1">5. PILLOWTALK - ZAYN</h2>
+            <h2 className="text-xl font-black mb-1">4. PILLOWTALK - ZAYN</h2>
             <p className="text-black/80 font-bold">A classic vibe just for us.</p>
           </div>
           <div className="bg-[#ffed4a] p-4 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform rotate-1 hover:-rotate-1 transition-transform">
-            <h2 className="text-xl font-black mb-1">6. love - Burna Boy</h2>
+            <h2 className="text-xl font-black mb-1">5. love - Burna Boy</h2>
             <p className="text-black/80 font-bold">Nothing but pure love.</p>
           </div>
           <div className="bg-[#ff3366] p-4 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform -rotate-2 hover:rotate-2 transition-transform text-white">
-            <h2 className="text-xl font-black mb-1">7. dopamine - Fireboy DML</h2>
+            <h2 className="text-xl font-black mb-1">6. dopamine - Fireboy DML</h2>
             <p className="text-white/90 font-bold">You're my dopamine hit! 😍</p>
           </div>
           <div className="bg-[#ff99cc] p-4 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform rotate-1 hover:-rotate-1 transition-transform">
-            <h2 className="text-xl font-black mb-1">8. ride - $wizzz</h2>
+            <h2 className="text-xl font-black mb-1">7. ride - $wizzz</h2>
             <p className="text-black/80 font-bold">Ride with you forever.</p>
           </div>
           <div className="bg-[#99ff99] p-4 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform -rotate-1 hover:rotate-1 transition-transform">
-            <h2 className="text-xl font-black mb-1">9. Nobody Gets Me - SZA</h2>
+            <h2 className="text-xl font-black mb-1">8. Nobody Gets Me - SZA</h2>
             <p className="text-black/80 font-bold">You just get me.</p>
           </div>
           <div className="bg-[#cc99ff] p-4 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform rotate-2 hover:-rotate-2 transition-transform">
-            <h2 className="text-xl font-black mb-1">10. Rather Be - Giveon</h2>
+            <h2 className="text-xl font-black mb-1">9. Rather Be - Giveon</h2>
             <p className="text-black/80 font-bold">Nowhere else I'd rather be.</p>
           </div>
           <div className="bg-[#ff9933] p-4 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform -rotate-1 hover:rotate-1 transition-transform">
-            <h2 className="text-xl font-black mb-1">11. Twenties - Giveon</h2>
+            <h2 className="text-xl font-black mb-1">10. Twenties - Giveon</h2>
             <p className="text-black/80 font-bold">Our best years together.</p>
           </div>
           <div className="bg-[#33ccff] p-4 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform rotate-1 hover:-rotate-1 transition-transform">
-            <h2 className="text-xl font-black mb-1">12. For Tonight - Giveon</h2>
+            <h2 className="text-xl font-black mb-1">11. For Tonight - Giveon</h2>
             <p className="text-black/80 font-bold">A beautiful melody for us.</p>
           </div>
           <div className="bg-[#ffed4a] p-4 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform -rotate-2 hover:rotate-2 transition-transform">
-            <h2 className="text-xl font-black mb-1">13. Keeper - Giveon</h2>
+            <h2 className="text-xl font-black mb-1">12. Keeper - Giveon</h2>
             <p className="text-black/80 font-bold">You are definitely a keeper.</p>
           </div>
           <div className="bg-[#ff3366] p-4 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform rotate-1 hover:-rotate-1 transition-transform text-white">
-            <h2 className="text-xl font-black mb-1">14. Stuck On You - Giveon</h2>
+            <h2 className="text-xl font-black mb-1">13. Stuck On You - Giveon</h2>
             <p className="text-white/90 font-bold">I'm stuck on you! 💕</p>
           </div>
         </div>
