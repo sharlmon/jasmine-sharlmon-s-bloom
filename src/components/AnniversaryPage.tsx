@@ -316,21 +316,22 @@ function Confetti({ i }: { i: number }) {
 function MusicButton() {
   const ref = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.35);
+  const [volume] = useState(0.35);
 
   useEffect(() => {
-    if (!ref.current) {
-      const a = new Audio(
-        "https://cdn.pixabay.com/download/audio/2022/10/25/audio_946bc9a8e8.mp3?filename=relaxing-piano-music-117420.mp3",
-      );
-      a.loop = true;
-      a.volume = volume;
-      ref.current = a;
-    }
-  }, []);
+    // Generate base-path aware music URL to support Github Pages base subdirectory
+    const baseUrl = import.meta.env.BASE_URL || "/";
+    const musicUrl = `${baseUrl.endsWith("/") ? baseUrl : baseUrl + "/"}music.mp3`;
+    
+    const a = new Audio(musicUrl);
+    a.loop = true;
+    a.volume = volume;
+    ref.current = a;
 
-  useEffect(() => {
-    if (ref.current) ref.current.volume = volume;
+    return () => {
+      a.pause();
+      ref.current = null;
+    };
   }, [volume]);
 
   const toggle = () => {
@@ -339,8 +340,13 @@ function MusicButton() {
       ref.current.pause();
       setPlaying(false);
     } else {
-      ref.current.play().catch(() => {});
-      setPlaying(true);
+      ref.current.play()
+        .then(() => {
+          setPlaying(true);
+        })
+        .catch((err) => {
+          console.warn("Autoplay / audio playback blocked by browser:", err);
+        });
     }
   };
 
