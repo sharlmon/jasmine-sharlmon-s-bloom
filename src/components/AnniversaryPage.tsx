@@ -138,21 +138,26 @@ type Petal = {
   delay: number;
   drift: number;
   color: string;
+  shape: "tape" | "bubble" | "sticker";
+  depth: number;
 };
 
 const CARTOON_COLORS = ["#ff3366", "#33ccff", "#ffed4a", "#99ff99", "#cc99ff", "#ff9933"];
 
 function makePetals(n: number): Petal[] {
+  const shapes: ("tape" | "bubble" | "sticker")[] = ["tape", "bubble", "sticker"];
   return Array.from({ length: n }, (_, i) => ({
     id: i,
     note: NOTES[i % NOTES.length],
     x: Math.random() * 80 + 10,
     y: Math.random() * 80 + 10,
     size: 160 + Math.random() * 60,
-    duration: 8 + Math.random() * 10,
-    delay: Math.random() * 5,
-    drift: (Math.random() - 0.5) * 60,
-    color: CARTOON_COLORS[i % CARTOON_COLORS.length]
+    duration: 15 + Math.random() * 15, // slower, gentler float
+    delay: Math.random() * 10,
+    drift: (Math.random() - 0.5) * 80,
+    color: CARTOON_COLORS[i % CARTOON_COLORS.length],
+    shape: shapes[i % shapes.length],
+    depth: 0.4 + Math.random() * 0.6, // parallax factor
   }));
 }
 
@@ -165,53 +170,111 @@ function PetalNote({
   mx: ReturnType<typeof useMotionValue<number>>;
   my: ReturnType<typeof useMotionValue<number>>;
 }) {
-  const ox = useTransform(mx, (v) => (v - petal.x) * -0.2);
-  const oy = useTransform(my, (v) => (v - petal.y) * -0.2);
-  const sox = useSpring(ox, { stiffness: 40, damping: 20 });
-  const soy = useSpring(oy, { stiffness: 40, damping: 20 });
+  // Parallax offset: reacts to mouse coordinates (0 to 100) relative to center
+  const ox = useTransform(mx, (v) => (v - 50) * -2 * petal.depth);
+  const oy = useTransform(my, (v) => (v - 50) * -2 * petal.depth);
+  const springX = useSpring(ox, { stiffness: 50, damping: 25 });
+  const springY = useSpring(oy, { stiffness: 50, damping: 25 });
 
   const [isHovered, setIsHovered] = useState(false);
+  const [screenHeight, setScreenHeight] = useState(1000);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setScreenHeight(window.innerHeight);
+    }
+  }, []);
 
   return (
     <motion.div
-      className="absolute select-none"
+      className="absolute select-none pointer-events-none"
       style={{
         left: `${petal.x}%`,
         bottom: `-${petal.size}px`,
-        x: sox,
-        y: soy,
         width: petal.size,
         zIndex: isHovered ? 100 : 18,
       }}
-      initial={{ y: 1000, opacity: 0 }}
+      initial={{ y: 200, opacity: 0 }}
       animate={{
-        y: isHovered ? 0 : [-800, -800 - petal.size],
+        y: [-100, -screenHeight - 300],
+        x: [0, petal.drift],
         opacity: [0, 1, 1, 0],
-        rotate: isHovered ? 0 : [-10, 10, -5, 8],
-        scale: isHovered ? 1.2 : 1,
       }}
       transition={{
         y: { duration: petal.duration, delay: petal.delay, repeat: Infinity, ease: "linear" },
+        x: { duration: petal.duration, delay: petal.delay, repeat: Infinity, ease: "easeInOut", repeatType: "mirror" },
         opacity: { duration: petal.duration, delay: petal.delay, repeat: Infinity, ease: "linear" },
-        rotate: { duration: petal.duration/2, repeat: Infinity, ease: "easeInOut", repeatType: "mirror" },
-        scale: { duration: 0.2 }
       }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
-      <div
-        className="relative px-4 py-3 cursor-pointer rounded-2xl text-center font-bold text-sm leading-snug transition-transform"
+      <motion.div
+        className="pointer-events-auto"
         style={{
-          backgroundColor: petal.color,
-          border: "4px solid black",
-          boxShadow: isHovered
-            ? "10px 10px 0px 0px rgba(0,0,0,1)"
-            : "6px 6px 0px 0px rgba(0,0,0,1)",
-          color: "black",
+          x: springX,
+          y: springY,
         }}
+        whileHover={{ scale: 1.15, rotate: 0 }}
+        onHoverStart={() => setIsHovered(true)}
+        onHoverEnd={() => setIsHovered(false)}
       >
-        {petal.note}
-      </div>
+        {petal.shape === "sticker" && (
+          <div
+            className="relative px-5 py-4 cursor-pointer rounded-2xl text-center font-black text-sm leading-snug border-4 border-black transition-shadow"
+            style={{
+              backgroundColor: petal.color,
+              boxShadow: `${isHovered ? "12px 12px" : "6px 6px"} 0px 0px rgba(0,0,0,1), 0 0 0 4px white`,
+              color: "black",
+              transform: `rotate(${petal.id % 2 === 0 ? 3 : -3}deg)`,
+            }}
+          >
+            {petal.note}
+          </div>
+        )}
+
+        {petal.shape === "bubble" && (
+          <div
+            className="relative px-5 py-4 cursor-pointer rounded-3xl text-center font-black text-sm leading-snug border-4 border-black transition-shadow"
+            style={{
+              backgroundColor: petal.color,
+              boxShadow: isHovered ? "12px 12px 0px 0px rgba(0,0,0,1)" : "6px 6px 0px 0px rgba(0,0,0,1)",
+              color: "black",
+              transform: `rotate(${petal.id % 2 === 0 ? -2 : 4}deg)`,
+            }}
+          >
+            {petal.note}
+            <div 
+              className="absolute -bottom-3.5 left-6 w-0 h-0 border-t-[14px] border-t-black border-r-[14px] border-r-transparent"
+              style={{ transform: "rotate(15deg)" }}
+            />
+            <div 
+              className="absolute -bottom-2.5 left-[26px] w-0 h-0 border-t-[10px] border-t-[current-color] border-r-[10px] border-r-transparent"
+              style={{
+                color: petal.color,
+                transform: "rotate(15deg)"
+              }}
+            />
+          </div>
+        )}
+
+        {petal.shape === "tape" && (
+          <div
+            className="relative px-5 py-5 cursor-pointer rounded-sm text-center font-black text-sm leading-snug border-4 border-black transition-shadow"
+            style={{
+              backgroundColor: petal.color,
+              boxShadow: isHovered ? "12px 12px 0px 0px rgba(0,0,0,1)" : "6px 6px 0px 0px rgba(0,0,0,1)",
+              color: "black",
+              transform: `rotate(${petal.id % 2 === 0 ? 5 : -4}deg)`,
+            }}
+          >
+            <div 
+              className="absolute -top-3.5 left-1/2 -translate-x-1/2 w-16 h-5 bg-[#fffae6]/95 border-2 border-black -rotate-3 shadow-[2px_2px_0px_rgba(0,0,0,0.1)] z-10"
+              style={{
+                backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(0,0,0,0.05) 5px, rgba(0,0,0,0.05) 10px)"
+              }}
+            />
+            {petal.note}
+          </div>
+        )}
+      </motion.div>
     </motion.div>
   );
 }
