@@ -24,8 +24,8 @@ function ReasonsPage() {
           <h1 className="text-4xl sm:text-5xl font-black text-[#ff3366] uppercase tracking-wider" style={{ textShadow: "3px 3px 0px #000, -1px -1px 0px #000, 1px -1px 0px #000, -1px 1px 0px #000" }}>
             Reasons I Love You 🥰
           </h1>
-          <Link to="/" className="px-5 py-2 bg-[#99ff99] border-4 border-black rounded-full font-black text-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">
-            Back
+          <Link to="/" className="flex items-center gap-2 px-6 py-3 bg-[#99ff99] border-4 border-black rounded-2xl font-black text-lg shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-[#7ceb7c] transition-all transform hover:scale-105 active:scale-95">
+            🏠 Back to Jasmine & Sharlmon
           </Link>
         </div>
         

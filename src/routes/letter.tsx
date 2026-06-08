@@ -10,8 +10,8 @@ function LetterPage() {
       <div className="max-w-2xl mx-auto bg-white border-4 border-black rounded-[2rem] p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
         <div className="flex justify-between items-center mb-8 border-b-4 border-black pb-4">
           <h1 className="text-4xl font-black text-[#ff3366] uppercase tracking-wider" style={{ textShadow: "2px 2px 0px #000" }}>A Love Letter 💌</h1>
-          <Link to="/" className="px-4 py-2 bg-[#ffed4a] border-2 border-black rounded-full font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">
-            Back
+          <Link to="/" className="flex items-center gap-2 px-6 py-3 bg-[#ffed4a] border-4 border-black rounded-2xl font-black text-lg shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-[#ffe500] transition-all transform hover:scale-105 active:scale-95">
+            🏠 Back to Jasmine & Sharlmon
           </Link>
         </div>
         
