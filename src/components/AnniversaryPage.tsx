@@ -376,7 +376,12 @@ function TrickyQuestion({ onYes }: { onYes: () => void }) {
 /* ─────────────────────────────── Main page ───────────────────────────────── */
 
 export default function AnniversaryPage() {
-  const [opened, setOpened] = useState(false);
+  const [opened, setOpened] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('anniversary_unlocked') === 'true';
+    }
+    return false;
+  });
   const { timer, mounted } = useLiveTimer();
   const petals = useMemo(() => makePetals(NOTES.length), []);
   const confetti = useMemo(() => Array.from({ length: 40 }, (_, i) => i), []);
@@ -394,7 +399,12 @@ export default function AnniversaryPage() {
   }, [mx, my]);
 
   if (!opened) {
-    return <TrickyQuestion onYes={() => setOpened(true)} />;
+    return <TrickyQuestion onYes={() => {
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('anniversary_unlocked', 'true');
+      }
+      setOpened(true);
+    }} />;
   }
 
   return (

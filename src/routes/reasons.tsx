@@ -25,7 +25,7 @@ function ReasonsPage() {
             Reasons I Love You 🥰
           </h1>
           <Link to="/" className="flex items-center gap-2 px-6 py-3 bg-[#99ff99] border-4 border-black rounded-2xl font-black text-lg shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-[#7ceb7c] transition-all transform hover:scale-105 active:scale-95">
-            🏠 Back to Jasmine & Sharlmon
+            🏠 Back to Menu
           </Link>
         </div>
         
