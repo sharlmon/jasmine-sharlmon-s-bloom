@@ -298,6 +298,7 @@ function MusicButton() {
 const QUESTIONS = [
   { title: "Wait a minute! 🛑", text: "Are we the cutest couple ever?", noText: "NO 🤢" },
   { title: "Hold on! 🤨", text: "Are you missing me right now?", noText: "NOT REALLY 🙄" },
+  { title: "Just checking... 🥺", text: "Am I the luckiest guy in the world to have you?", noText: "PROBABLY NOT 🤷‍♀️" },
   { title: "One last thing... 📅", text: "Are we still on for our date tomorrow (Tuesday the 9th)? 😉", noText: "I'M BUSY 🙅‍♀️" }
 ];
 
