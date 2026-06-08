@@ -44,6 +44,34 @@ function SongsPage() {
             <h2 className="text-xl font-black mb-1">7. dopamine - Fireboy DML</h2>
             <p className="text-white/90 font-bold">You're my dopamine hit! 😍</p>
           </div>
+          <div className="bg-[#ff99cc] p-4 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform rotate-1 hover:-rotate-1 transition-transform">
+            <h2 className="text-xl font-black mb-1">8. ride - $wizzz</h2>
+            <p className="text-black/80 font-bold">Ride with you forever.</p>
+          </div>
+          <div className="bg-[#99ff99] p-4 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform -rotate-1 hover:rotate-1 transition-transform">
+            <h2 className="text-xl font-black mb-1">9. Nobody Gets Me - SZA</h2>
+            <p className="text-black/80 font-bold">You just get me.</p>
+          </div>
+          <div className="bg-[#cc99ff] p-4 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform rotate-2 hover:-rotate-2 transition-transform">
+            <h2 className="text-xl font-black mb-1">10. Rather Be - Giveon</h2>
+            <p className="text-black/80 font-bold">Nowhere else I'd rather be.</p>
+          </div>
+          <div className="bg-[#ff9933] p-4 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform -rotate-1 hover:rotate-1 transition-transform">
+            <h2 className="text-xl font-black mb-1">11. Twenties - Giveon</h2>
+            <p className="text-black/80 font-bold">Our best years together.</p>
+          </div>
+          <div className="bg-[#33ccff] p-4 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform rotate-1 hover:-rotate-1 transition-transform">
+            <h2 className="text-xl font-black mb-1">12. For Tonight - Giveon</h2>
+            <p className="text-black/80 font-bold">A beautiful melody for us.</p>
+          </div>
+          <div className="bg-[#ffed4a] p-4 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform -rotate-2 hover:rotate-2 transition-transform">
+            <h2 className="text-xl font-black mb-1">13. Keeper - Giveon</h2>
+            <p className="text-black/80 font-bold">You are definitely a keeper.</p>
+          </div>
+          <div className="bg-[#ff3366] p-4 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform rotate-1 hover:-rotate-1 transition-transform text-white">
+            <h2 className="text-xl font-black mb-1">14. Stuck On You - Giveon</h2>
+            <p className="text-white/90 font-bold">I'm stuck on you! 💕</p>
+          </div>
         </div>
       </div>
     </div>
