@@ -294,54 +294,80 @@ function MusicButton() {
   );
 }
 
-/* ─────────────────────────────── Tricky Question ───────────────────────────────── */
+/* ─────────────────────────────── Tricky Question Sequence ───────────────────────────────── */
+const QUESTIONS = [
+  { title: "Wait a minute! 🛑", text: "Are we the cutest couple ever?", noText: "NO 🤢" },
+  { title: "Hold on! 🤨", text: "Are you missing me right now?", noText: "NOT REALLY 🙄" },
+  { title: "One last thing... 📅", text: "Are we still on for our date tomorrow (Tuesday the 9th)? 😉", noText: "I'M BUSY 🙅‍♀️" }
+];
+
 function TrickyQuestion({ onYes }: { onYes: () => void }) {
+  const [step, setStep] = useState(0);
   const [noPosition, setNoPosition] = useState({ x: 0, y: 0 });
   const noBtnRef = useRef<HTMLButtonElement>(null);
 
   const moveNoButton = () => {
-    const maxX = window.innerWidth * 0.4;
-    const maxY = window.innerHeight * 0.4;
-    const rx = (Math.random() - 0.5) * maxX;
-    const ry = (Math.random() - 0.5) * maxY;
+    const maxX = window.innerWidth * 0.35;
+    const maxY = window.innerHeight * 0.35;
+    const rx = (Math.random() - 0.5) * maxX * 2;
+    const ry = (Math.random() - 0.5) * maxY * 2;
     setNoPosition({ x: rx, y: ry });
   };
 
+  const handleYes = () => {
+    if (step < QUESTIONS.length - 1) {
+      setStep(step + 1);
+      setNoPosition({ x: 0, y: 0 }); // reset NO button position for next question
+    } else {
+      onYes();
+    }
+  };
+
+  const currentQ = QUESTIONS[step];
+
   return (
     <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#ffed4a] bg-[radial-gradient(#ff3366_3px,transparent_3px)] [background-size:32px_32px]">
-      <motion.div 
-        initial={{ scale: 0, rotate: -10 }}
-        animate={{ scale: 1, rotate: 0 }}
-        transition={{ type: "spring", bounce: 0.6 }}
-        className="bg-white p-8 sm:p-12 border-8 border-black rounded-3xl shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] text-center max-w-xl mx-4"
-      >
-        <h1 className="text-4xl sm:text-6xl font-black mb-8 text-[#ff3366] uppercase" style={{ textShadow: "3px 3px 0px #000, -1px -1px 0px #000, 1px -1px 0px #000, -1px 1px 0px #000" }}>
-          Wait a minute! 🛑
-        </h1>
-        <p className="text-2xl sm:text-4xl font-bold mb-12 text-black">
-          Are we the cutest couple ever?
-        </p>
-        
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-8 min-h-[100px]">
-          <button 
-            onClick={onYes}
-            className="px-10 py-4 bg-[#99ff99] border-4 border-black rounded-2xl text-3xl font-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-[#7ceb7c] transition-all transform hover:scale-110"
-          >
-            YES! 😍
-          </button>
+      <AnimatePresence mode="wait">
+        <motion.div 
+          key={step}
+          initial={{ scale: 0, rotate: -10 }}
+          animate={{ scale: 1, rotate: 0 }}
+          exit={{ scale: 0, rotate: 10 }}
+          transition={{ type: "spring", bounce: 0.6 }}
+          className="bg-white p-8 sm:p-12 border-8 border-black rounded-3xl shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] text-center max-w-2xl mx-4 relative"
+        >
+          <div className="absolute -top-6 -right-6 bg-[#33ccff] text-black font-black text-xl border-4 border-black rounded-full w-14 h-14 flex items-center justify-center transform rotate-12 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            {step + 1}/{QUESTIONS.length}
+          </div>
           
-          <motion.button
-            ref={noBtnRef}
-            animate={{ x: noPosition.x, y: noPosition.y }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            onMouseEnter={moveNoButton}
-            onClick={moveNoButton}
-            className="absolute sm:relative px-10 py-4 bg-[#ff3366] border-4 border-black rounded-2xl text-3xl font-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] text-white"
-          >
-            NO 🤢
-          </motion.button>
-        </div>
-      </motion.div>
+          <h1 className="text-4xl sm:text-6xl font-black mb-6 text-[#ff3366] uppercase leading-tight" style={{ textShadow: "3px 3px 0px #000, -1px -1px 0px #000, 1px -1px 0px #000, -1px 1px 0px #000" }}>
+            {currentQ.title}
+          </h1>
+          <p className="text-2xl sm:text-4xl font-bold mb-12 text-black leading-snug">
+            {currentQ.text}
+          </p>
+          
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-8 min-h-[100px]">
+            <button 
+              onClick={handleYes}
+              className="px-10 py-4 bg-[#99ff99] border-4 border-black rounded-2xl text-3xl font-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-[#7ceb7c] transition-all transform hover:scale-110"
+            >
+              YES! 😍
+            </button>
+            
+            <motion.button
+              ref={noBtnRef}
+              animate={{ x: noPosition.x, y: noPosition.y }}
+              transition={{ type: "spring", stiffness: 400, damping: 15 }}
+              onMouseEnter={moveNoButton}
+              onClick={moveNoButton}
+              className="absolute sm:relative px-8 py-4 bg-[#ff3366] border-4 border-black rounded-2xl text-2xl font-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] text-white z-10"
+            >
+              {currentQ.noText}
+            </motion.button>
+          </div>
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }
@@ -404,6 +430,7 @@ export default function AnniversaryPage() {
       >
         <Link to="/songs" className="px-4 py-2 bg-[#ff99cc] border-4 border-black rounded-full font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">🎵 Songs</Link>
         <Link to="/letter" className="px-4 py-2 bg-[#ffed4a] border-4 border-black rounded-full font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">💌 Letter</Link>
+        <Link to="/reasons" className="px-4 py-2 bg-[#33ccff] border-4 border-black rounded-full font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">🥰 Reasons</Link>
       </motion.div>
 
       {/* Title */}
